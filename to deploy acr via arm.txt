@@ -1,0 +1,100 @@
+WORKFLOW FILE TO DEPLOY ACR VIA ARM TEMPLATE
+--------------------------------------------------------------------------------------
+
+name: Deploy an Azure Container Registry (ACR)
+
+on:
+  push:
+    branches:
+      - main  # Adjust branch as necessary
+
+jobs:
+  deploy-resourcegroup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+
+      - name: Create Azure Container Registry (ACR)
+        run: |
+          az acr create --name karthacr --resource-group karthrg --location "East US" --sku Standard
+      # Additional steps can be added here for further customization or deployment
+
+
+
+JSON FILE TO DEPLOY ACR
+-------------------------------------------
+
+{
+  "type": "Microsoft.ContainerRegistry/registries",
+  "apiVersion": "2023-01-01-preview",
+  "name": "string",
+  "location": "string",
+  "tags": {
+    "tagName1": "tagValue1",
+    "tagName2": "tagValue2"
+  },
+  "sku": {
+    "name": "string"
+  },
+  "identity": {
+    "principalId": "string",
+    "tenantId": "string",
+    "type": "string",
+    "userAssignedIdentities": {}
+  },
+  "properties": {
+    "adminUserEnabled": "bool",
+    "anonymousPullEnabled": "bool",
+    "dataEndpointEnabled": "bool",
+    "encryption": {
+      "keyVaultProperties": {
+        "identity": "string",
+        "keyIdentifier": "string"
+      },
+      "status": "string"
+    },
+    "networkRuleBypassOptions": "string",
+    "networkRuleSet": {
+      "defaultAction": "string",
+      "ipRules": [
+        {
+          "action": "Allow",
+          "value": "string"
+        }
+      ]
+    },
+    "policies": {
+      "azureADAuthenticationAsArmPolicy": {
+        "status": "string"
+      },
+      "exportPolicy": {
+        "status": "string"
+      },
+      "quarantinePolicy": {
+        "status": "string"
+      },
+      "retentionPolicy": {
+        "days": "int",
+        "status": "string"
+      },
+      "softDeletePolicy": {
+        "retentionDays": "int",
+        "status": "string"
+      },
+      "trustPolicy": {
+        "status": "string",
+        "type": "Notary"
+      }
+    },
+    "publicNetworkAccess": "string",
+    "zoneRedundancy": "string"
+  }
+}

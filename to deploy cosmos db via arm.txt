@@ -1,0 +1,104 @@
+template.json file
+-------------------------
+
+{
+  "type": "Microsoft.KeyVault/vaults",
+  "apiVersion": "2023-07-01",
+  "name": "key",
+  "location": "East US",
+  "tags": {
+    "tagName1": "tagValue1",
+    "tagName2": "tagValue2"
+  },
+  "properties": {
+    "accessPolicies": [
+      {
+        "applicationId": "string",
+        "objectId": "string",
+        "permissions": {
+          "certificates": [ "string" ],
+          "keys": [ "string" ],
+          "secrets": [ "string" ],
+          "storage": [ "string" ]
+        },
+        "tenantId": "string"
+      }
+    ],
+    "createMode": "string",
+    "enabledForDeployment": "bool",
+    "enabledForDiskEncryption": "bool",
+    "enabledForTemplateDeployment": "bool",
+    "enablePurgeProtection": "bool",
+    "enableRbacAuthorization": "bool",
+    "enableSoftDelete": "bool",
+    "networkAcls": {
+      "bypass": "string",
+      "defaultAction": "string",
+      "ipRules": [
+        {
+          "value": "string"
+        }
+      ],
+      "virtualNetworkRules": [
+        {
+          "id": "string",
+          "ignoreMissingVnetServiceEndpoint": "bool"
+        }
+      ]
+    },
+    "provisioningState": "string",
+    "publicNetworkAccess": "string",
+    "sku": {
+      "family": "A",
+      "name": "string"
+    },
+    "softDeleteRetentionInDays": "int",
+    "tenantId": "string",
+    "vaultUri": "string"
+  }
+}
+
+
+
+
+
+
+
+
+
+workflow file for cosmos db
+----------------------------------------
+
+name: Deploy Cosmos DB
+
+on:
+  push:
+    branches:
+      - main  # Adjust branch as necessary
+
+jobs:
+  deploy-cosmos-db:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Cosmos DB instance
+        run: |
+          az cosmosdb create \
+            --name mycosmosdbspiritt \
+            --resource-group spirit \
+            --kind GlobalDocumentDB \
+            --locations regionName=UKSouth failoverPriority=0 isZoneRedundant=false \
+            --default-consistency-level Session \
+            --enable-automatic-failover true
+      - name: Output Cosmos DB endpoint
+        run: |
+          echo "::set-output name=cosmosDbEndpoint::$(az cosmosdb show --name mycosmosdbspiritt --resource-group spirit --query 'documentEndpoint' -o tsv)"
+        # Adjust as per your requirement for outputting endpoint or other details
